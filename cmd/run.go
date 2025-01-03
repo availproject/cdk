@@ -23,6 +23,7 @@ import (
 	cdkcommon "github.com/0xPolygon/cdk/common"
 	"github.com/0xPolygon/cdk/config"
 	"github.com/0xPolygon/cdk/dataavailability"
+	"github.com/0xPolygon/cdk/dataavailability/avail"
 	"github.com/0xPolygon/cdk/dataavailability/datacommittee"
 	"github.com/0xPolygon/cdk/etherman"
 	ethermanconfig "github.com/0xPolygon/cdk/etherman/config"
@@ -414,6 +415,19 @@ func newDataAvailability(c config.Config, etherman *etherman.Client) (*dataavail
 			pk,
 			dataCommitteeClient.NewFactory(),
 			translator,
+		)
+		if err != nil {
+			return nil, err
+		}
+	case string(dataavailability.Avail):
+		dacAddr, err := etherman.GetDAProtocolAddr()
+		if err != nil {
+			return nil, fmt.Errorf("error getting trusted sequencer URI. Error: %v", err)
+		}
+
+		daBackend, err = avail.New(
+			c.Etherman.URL,
+			dacAddr,
 		)
 		if err != nil {
 			return nil, err
