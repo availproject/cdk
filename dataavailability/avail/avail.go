@@ -47,17 +47,18 @@ type AvailBackend struct {
 	genesisHash         gsrpc_types.Hash
 	rv                  *gsrpc_types.RuntimeVersion
 	keyringPair         signature.KeyringPair
-	timeout             int
+	timeout             time.Duration
 }
 
-func New(l1RPCURL string, availattestationContractAddress common.Address) (*AvailBackend, error) {
-	var config Config
-	err := config.GetConfig("/app/avail-config.json")
-	if err != nil {
-		log.Fatalf("cannot get config: %+v", err)
-		return nil, err
-	}
+func New(l1RPCURL string, availattestationContractAddress common.Address, config Config) (*AvailBackend, error) {
+	// var config Config
+	// err := config.GetConfig("/app/avail-config.json")
+	// if err != nil {
+	// 	log.Fatalf("cannot get config: %+v", err)
+	// 	return nil, err
+	// }
 
+	log.Infof("AvailDAInfo: AvailDA config: %+v", config)
 	ethClient, err := ethclient.Dial(l1RPCURL)
 	if err != nil {
 		log.Errorf("error connecting to %s: %+v", l1RPCURL, err)
@@ -272,7 +273,7 @@ func (a *AvailBackend) submitData(sequence []byte) (gsrpc_types.Hash, gsrpc_type
 	}
 
 	defer sub.Unsubscribe()
-	timeout := time.After(time.Duration(a.timeout) * time.Second)
+	timeout := time.After(a.timeout * time.Second)
 	var blockHash gsrpc_types.Hash
 out:
 	for {
