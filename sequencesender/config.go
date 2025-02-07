@@ -2,6 +2,7 @@ package sequencesender
 
 import (
 	"github.com/0xPolygon/cdk/config/types"
+	"github.com/0xPolygon/cdk/dataavailability/avail"
 	"github.com/0xPolygon/cdk/log"
 	"github.com/0xPolygon/zkevm-ethtx-manager/ethtxmanager"
 	"github.com/ethereum/go-ethereum/common"
@@ -56,6 +57,8 @@ type Config struct {
 
 	// EthTxManager is the config for the ethtxmanager
 	EthTxManager ethtxmanager.Config `mapstructure:"EthTxManager"`
+
+	AvailDAConfig avail.Config `mapstructure:"AvailDAConfig"`
 
 	// Log is the log configuration
 	Log log.Config `mapstructure:"Log"`

@@ -433,8 +433,9 @@ func newDataAvailability(c config.Config, etherman *etherman.Client) (*dataavail
 		}
 
 		daBackend, err = avail.New(
-			c.Etherman.URL,
+			c.SequenceSender.EthTxManager.Etherman.URL,
 			dacAddr,
+			c.SequenceSender.AvailDAConfig,
 		)
 		if err != nil {
 			return nil, err

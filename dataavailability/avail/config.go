@@ -5,15 +5,16 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"time"
 )
 
 type Config struct {
-	Seed         string `json:"seed"`
-	WsApiUrl     string `json:"ws_api_url"`
-	HttpApiUrl   string `json:"http_api_url"`
-	BridgeApiUrl string `json:"bridge_api_url"`
-	AppID        int    `json:"app_id"`
-	Timeout      int    `json:"timeout"`
+	Seed         string        `mapstructure:"seed"`
+	WsApiUrl     string        `mapstructure:"ws_api_url"`
+	HttpApiUrl   string        `mapstructure:"http_api_url"`
+	BridgeApiUrl string        `mapstructure:"bridge_api_url"`
+	AppID        int           `mapstructure:"app_id"`
+	Timeout      time.Duration `mapstructure:"timeout"`
 }
 
 func (c *Config) GetConfig(configFileName string) error {
