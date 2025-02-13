@@ -48,7 +48,7 @@ type AvailBackend struct {
 	rv                  *gsrpc_types.RuntimeVersion
 	keyringPair         signature.KeyringPair
 	key                 gsrpc_types.StorageKey
-	timeout             time.Duration
+	timeout             int
 }
 
 func New(l1RPCURL string, availattestationContractAddress common.Address, config Config) (*AvailBackend, error) {
@@ -277,7 +277,7 @@ func (a *AvailBackend) submitData(sequence []byte) (gsrpc_types.Hash, gsrpc_type
 	log.Info("AvailDAInfo: ✅  Tx batch is submitted to Avail", "length", len(sequence), "address", a.keyringPair.Address, "appID", a.appId)
 
 	defer sub.Unsubscribe()
-	timeout := time.After(a.timeout * time.Second)
+	timeout := time.After(time.Duration(a.timeout) * time.Second)
 	var finalizedblockHash gsrpc_types.Hash
 
 outer:
