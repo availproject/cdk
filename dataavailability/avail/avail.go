@@ -47,16 +47,11 @@ type AvailBackend struct {
 	genesisHash         gsrpc_types.Hash
 	rv                  *gsrpc_types.RuntimeVersion
 	keyringPair         signature.KeyringPair
+	key                 gsrpc_types.StorageKey
 	timeout             time.Duration
 }
 
 func New(l1RPCURL string, availattestationContractAddress common.Address, config Config) (*AvailBackend, error) {
-	// var config Config
-	// err := config.GetConfig("/app/avail-config.json")
-	// if err != nil {
-	// 	log.Fatalf("cannot get config: %+v", err)
-	// 	return nil, err
-	// }
 
 	log.Infof("AvailDAInfo: AvailDA config: %+v", config)
 	ethClient, err := ethclient.Dial(l1RPCURL)
@@ -74,13 +69,13 @@ func New(l1RPCURL string, availattestationContractAddress common.Address, config
 
 	api, err := gsrpc.NewSubstrateAPI(config.WsApiUrl)
 	if err != nil {
-		log.Fatalf("cannot get ws api: %+v", err)
+		log.Fatalf("AvailDAError: ⚠️ cannot get ws api: %+v", err)
 		return nil, err
 	}
 
 	meta, err := api.RPC.State.GetMetadataLatest()
 	if err != nil {
-		log.Fatalf("cannot get metadata: %+v", err)
+		log.Fatalf("AvailDAError: ⚠️ cannot get metadata: %+v", err)
 		return nil, err
 	}
 
@@ -93,21 +88,28 @@ func New(l1RPCURL string, availattestationContractAddress common.Address, config
 
 	genesisHash, err := api.RPC.Chain.GetBlockHash(0)
 	if err != nil {
-		log.Fatalf("cannot get block hash: %+v", err)
+		log.Fatalf("AvailDAError: ⚠️ cannot get block hash: %+v", err)
 		return nil, err
 	}
 
 	rv, err := api.RPC.State.GetRuntimeVersionLatest()
 	if err != nil {
-		log.Fatalf("cannot get runtime version: %+v", err)
+		log.Fatalf("AvailDAError: ⚠️ cannot get runtime version: %+v", err)
 		return nil, err
 	}
 
 	keyringPair, err := signature.KeyringPairFromSecret(config.Seed, 42)
 	if err != nil {
-		log.Fatalf("cannot create keypair: %+v", err)
+		log.Fatalf("AvailDAError: ⚠️ cannot create keypair: %+v", err)
 		return nil, err
 	}
+
+	key, err := gsrpc_types.CreateStorageKey(meta, "System", "Account", keyringPair.PublicKey)
+	if err != nil {
+		log.Fatalf("AvailDAError: ⚠️ cannot create storage key, %w. %w", err, ErrAvailDAClientInit)
+		return nil, err
+	}
+
 	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address %v", keyringPair.Address)
 
 	return &AvailBackend{
@@ -120,6 +122,7 @@ func New(l1RPCURL string, availattestationContractAddress common.Address, config
 		genesisHash:         genesisHash,
 		rv:                  rv,
 		keyringPair:         keyringPair,
+		key:                 key,
 		timeout:             config.Timeout,
 	}, nil
 }
@@ -234,69 +237,70 @@ func (a *AvailBackend) GetSequence(ctx context.Context, batchHashes []common.Has
 }
 
 func (a *AvailBackend) submitData(sequence []byte) (gsrpc_types.Hash, gsrpc_types.UCompact, error) {
-	log.Infof("AvailDAInfo: Account address for batch submission on Avail: %v\n", a.keyringPair.Address)
-	newCall, err := gsrpc_types.NewCall(a.meta, "DataAvailability.submit_data", gsrpc_types.NewBytes(sequence))
+	c, err := gsrpc_types.NewCall(a.meta, "DataAvailability.submit_data", gsrpc_types.NewBytes(sequence))
 	if err != nil {
-		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("cannot create new call:%w", err)
+		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⚠️ cannot create new call, %w", err)
 	}
 
 	// Create the extrinsic
-	ext := gsrpc_types.NewExtrinsic(newCall)
+	ext := gsrpc_types.NewExtrinsic(c)
 
-	nonce, err := getAccountNextIndex(a.httpApi, a.keyringPair.Address)
-	if err != nil {
-		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("cannot get account next index:%w", err)
+	var accountInfo gsrpc_types.AccountInfo
+	ok, err := a.api.RPC.State.GetStorageLatest(a.key, &accountInfo)
+	if err != nil || !ok {
+		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⚠️ cannot get latest storage, %w", err)
 	}
 
-	options := gsrpc_types.SignatureOptions{
+	o := gsrpc_types.SignatureOptions{
 		BlockHash:          a.genesisHash,
 		Era:                gsrpc_types.ExtrinsicEra{IsMortalEra: false},
 		GenesisHash:        a.genesisHash,
-		Nonce:              nonce,
+		Nonce:              gsrpc_types.NewUCompactFromUInt(uint64(accountInfo.Nonce)),
 		SpecVersion:        a.rv.SpecVersion,
-		Tip:                gsrpc_types.NewUCompactFromUInt(1000),
-		AppID:              gsrpc_types.NewUCompactFromUInt(uint64(a.appId)),
+		Tip:                gsrpc_types.NewUCompactFromUInt(0),
+		AppID:              gsrpc_types.NewUCompactFromUInt(uint64(a.appId)), //nolint:gosec
 		TransactionVersion: a.rv.TransactionVersion,
 	}
 
-	log.Infof("AvailDAInfo: Avail extrinsic options:%+v\n", options)
-
-	err = ext.Sign(a.keyringPair, options)
+	// Sign the transaction using Alice's default account
+	err = ext.Sign(a.keyringPair, o)
 	if err != nil {
-		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("cannot sign:%w", err)
+		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⚠️ cannot sign, %w", err)
 	}
 
 	// Send the extrinsic
 	sub, err := a.api.RPC.Author.SubmitAndWatchExtrinsic(ext)
 	if err != nil {
-		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("cannot submit extrinsic:%w", err)
+		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⚠️ cannot submit extrinsic, %w", err)
 	}
+
+	log.Info("AvailDAInfo: ✅  Tx batch is submitted to Avail", "length", len(sequence), "address", a.keyringPair.Address, "appID", a.appId)
 
 	defer sub.Unsubscribe()
 	timeout := time.After(a.timeout * time.Second)
-	var blockHash gsrpc_types.Hash
-out:
+	var finalizedblockHash gsrpc_types.Hash
+
+outer:
 	for {
 		select {
 		case status := <-sub.Chan():
 			if status.IsInBlock {
-				log.Infof("AvailDAInfo: 📥 Submit data extrinsic included in block %v", status.AsInBlock.Hex())
+				log.Info("AvailDAInfo: 📥  Submit data extrinsic included in block", "blockHash", status.AsInBlock.Hex())
 			} else if status.IsFinalized {
-				blockHash = status.AsFinalized
-				log.Infof("AvailDAInfo: 📥  Submit data extrinsic included in finalized block", "blockHash", blockHash.Hex())
-				break out
+				finalizedblockHash = status.AsFinalized
+				log.Info("AvailDAInfo: 📥  Submit data extrinsic included in finalized block", "blockHash", finalizedblockHash.Hex())
+				break outer
 			} else if status.IsRetracted {
 				log.Warn("AvailDAWarn: ✂️  AvailDA transaction got retracted from block", "blockHash", status.AsRetracted.Hex())
 			} else if status.IsInvalid {
 				return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("❌ Extrinsic invalid")
 			}
 		case <-timeout:
-			return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⌛️ Timeout of %d seconds reached without getting finalized status for extrinsic", a.timeout)
+			return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⌛️  Timeout of %d seconds reached without getting finalized status for extrinsic", a.timeout)
 		}
 	}
 
-	log.Infof("AvailDAInfo: ✅ Data submitted by sequencer:%d bytes against AppID %v sent with hash %#x", len(sequence), a.appId, blockHash)
-	return blockHash, nonce, nil
+	return finalizedblockHash, o.Nonce, nil
 }
 
 func (a *AvailBackend) getData(blockNumber uint64, index uint) ([]byte, error) {
