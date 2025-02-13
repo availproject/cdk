@@ -152,6 +152,9 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 	log.Infof("AvailDAInfo: ⚡️ Prepared data for Avail:%d bytes", len(sequence))
 
 	blockHash, nonce, err := a.submitData(sequence)
+	if err != nil {
+		return nil, fmt.Errorf("cannot submit data:%+v", err)
+	}
 	txIndex, err := getExtrinsicIndex(a.api, blockHash, a.keyringPair.Address, nonce)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get tx index:%+v", err)
