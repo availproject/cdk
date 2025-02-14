@@ -166,23 +166,24 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 	for retryCount > 0 {
 		log.Infof("AvailDAInfo: Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, blockHash, txIndex))
 		resp, err := http.Get(fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, blockHash, txIndex))
-		if err != nil {
-			log.Infof("⏳ Attestation proof RPC errored, waiting...")
-		} else {
-			if resp.StatusCode == 200 {
-				log.Infof("✅ Attestation proof received")
-				data, err := io.ReadAll(resp.Body)
-				if err != nil {
-					return nil, fmt.Errorf("cannot read body:%v", err)
-				}
-				err = json.Unmarshal(data, &input)
-				if err != nil {
-					return nil, fmt.Errorf("cannot unmarshal data:%v", err)
-				}
-				break
+		if err == nil && resp.StatusCode == 200 {
+			log.Infof("✅ Attestation proof received")
+			data, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, fmt.Errorf("cannot read body:%v", err)
 			}
-			defer resp.Body.Close()
+			err = json.Unmarshal(data, &input)
+			if err != nil {
+				return nil, fmt.Errorf("cannot unmarshal data:%v", err)
+			}
+			break
+
 		}
+		log.Infof("⏳ Attestation proof RPC errored, retry count left: %v, retrying in %v", retryCount, waitTime)
+		log.Infof("Response Code: %d", resp.StatusCode)
+
+		defer resp.Body.Close()
+
 		retryCount--
 		time.Sleep(waitTime)
 	}
