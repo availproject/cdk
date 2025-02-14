@@ -55,10 +55,10 @@ var byte32Type = abi.Type{T: abi.FixedBytesTy, Size: 32}
 var uint32Type = abi.Type{Size: 32, T: abi.UintTy}
 var stringType = abi.Type{T: abi.StringTy}
 var byte32ArrayType = abi.Type{T: abi.SliceTy, Elem: &abi.Type{T: abi.FixedBytesTy, Size: 32}}
-var uint64Type = abi.Type{Size: 64, T: abi.UintTy}
+var uint256Type = abi.Type{Size: 256, T: abi.UintTy}
 
 var byteArrayType = abi.Type{T: abi.SliceTy, Elem: &abi.Type{T: abi.BytesTy}} // Type for bytes[]
-var merkleProofInputType = abi.Type{T: abi.TupleTy, TupleType: reflect.TypeOf(MerkleProofInput{}), TupleElems: []*abi.Type{&byte32ArrayType, &byte32ArrayType, &byte32Type, &uint64Type, &byte32Type, &byte32Type, &byte32Type, &uint64Type}, TupleRawNames: []string{"dataRootProof", "leafProof", "rangeHash", "dataRootIndex", "blobRoot", "bridgeRoot", "leaf", "leafIndex"}}
+var merkleProofInputType = abi.Type{T: abi.TupleTy, TupleType: reflect.TypeOf(MerkleProofInput{}), TupleElems: []*abi.Type{&byte32ArrayType, &byte32ArrayType, &byte32Type, &uint256Type, &byte32Type, &byte32Type, &byte32Type, &uint256Type}, TupleRawNames: []string{"dataRootProof", "leafProof", "rangeHash", "dataRootIndex", "blobRoot", "bridgeRoot", "leaf", "leafIndex"}}
 
 var byteArrayArguments = abi.Arguments{{Type: byteArrayType}}
 var merkleProofInputArguments = abi.Arguments{
