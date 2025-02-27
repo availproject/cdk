@@ -4,6 +4,8 @@ go 1.23.7
 
 replace github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.1.0-avail-2.1.5-rc2
 
+replace github.com/0xPolygonHermez/zkevm-synchronizer-l1 => github.com/availproject/cdk-zkevm-synchronizer-l1 v0.0.0-20250227091745-e6188bc41148
+
 require (
 	github.com/0xPolygon/cdk-contracts-tooling v0.0.2-0.20241225094934-1d381f5703ef
 	github.com/0xPolygon/cdk-data-availability v0.0.12
@@ -30,6 +32,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.27.5
 	github.com/valyala/fasttemplate v1.2.2
+	github.com/vedhavyas/go-subkey v1.0.4
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/metric v1.24.0
 	go.uber.org/zap v1.27.0
@@ -160,7 +163,6 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/vedhavyas/go-subkey v1.0.4
 	github.com/vedhavyas/go-subkey/v2 v2.0.0 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
