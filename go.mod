@@ -4,14 +4,16 @@ go 1.22.4
 
 replace github.com/centrifuge/go-substrate-rpc-client/v4 => github.com/availproject/go-substrate-rpc-client/v4 v4.1.0-avail-2.1.5-rc2
 
+replace github.com/0xPolygonHermez/zkevm-synchronizer-l1 => github.com/availproject/cdk-zkevm-synchronizer-l1 v0.0.0-20250227091745-e6188bc41148
+
 require (
 	github.com/0xPolygon/cdk-contracts-tooling v0.0.1
 	github.com/0xPolygon/cdk-data-availability v0.0.11
 	github.com/0xPolygon/cdk-rpc v0.0.0-20241004114257-6c3cb6eebfb6
 	github.com/0xPolygon/zkevm-ethtx-manager v0.2.4
 	github.com/0xPolygonHermez/zkevm-synchronizer-l1 v1.0.6
-	github.com/ethereum/go-ethereum v1.14.10
 	github.com/centrifuge/go-substrate-rpc-client/v4 v4.2.1
+	github.com/ethereum/go-ethereum v1.14.10
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/hermeznetwork/tracerr v0.3.2
 	github.com/iden3/go-iden3-crypto v0.0.17
@@ -30,6 +32,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.27.4
 	github.com/valyala/fasttemplate v1.2.2
+	github.com/vedhavyas/go-subkey v1.0.4
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/metric v1.24.0
 	go.uber.org/zap v1.27.0
@@ -51,6 +54,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.14.2 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.4 // indirect
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cockroachdb/errors v1.11.3 // indirect
@@ -158,7 +162,6 @@ require (
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/tyler-smith/go-bip39 v1.1.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/vedhavyas/go-subkey v1.0.4
 	github.com/vedhavyas/go-subkey/v2 v2.0.0 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
