@@ -149,7 +149,7 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 		return nil, fmt.Errorf("cannot pack data:%w", err)
 	}
 
-	log.Infof("AvailDAInfo: ⚡️ Prepared data for Avail:%d bytes", len(sequence))
+	log.Infof("AvailDAInfo: ⚡️ Prepared data for Avail: %d bytes", len(sequence))
 
 	blockHash, nonce, err := a.submitData(sequence)
 	if err != nil {
