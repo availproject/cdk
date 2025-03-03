@@ -53,10 +53,10 @@ type AvailBackend struct {
 
 func New(l1RPCURL string, availattestationContractAddress common.Address, config Config) (*AvailBackend, error) {
 
-	log.Infof("AvailDAInfo: AvailDA config: %+v", config)
+	log.Infof("AvailDAInfo:ℹ️ AvailDA config: %+v", config)
 	ethClient, err := ethclient.Dial(l1RPCURL)
 	if err != nil {
-		log.Errorf("error connecting to %s: %+v", l1RPCURL, err)
+		log.Errorf("AvailDAError: ⚠️ error connecting to %s: %+v", l1RPCURL, err)
 		return nil, err
 	}
 
@@ -164,10 +164,10 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 	waitTime := BridgeApiWaitInterval * time.Second
 	retryCount := BridgeApiRetryCount
 	for retryCount > 0 {
-		log.Infof("AvailDAInfo: Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, blockHash, txIndex))
+		log.Infof("AvailDAInfo: ℹ️ Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, blockHash, txIndex))
 		resp, err := http.Get(fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, blockHash, txIndex))
 		if err == nil && resp.StatusCode == 200 {
-			log.Infof("✅ Attestation proof received")
+			log.Infof("AvailDAInfo: ✅ Attestation proof received")
 			data, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return nil, fmt.Errorf("cannot read body:%v", err)
@@ -179,8 +179,7 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 			break
 
 		}
-		log.Infof("⏳ Attestation proof RPC errored, retry count left: %v, retrying in %v", retryCount, waitTime)
-		log.Infof("Response Code: %d", resp.StatusCode)
+		log.Infof("AvailDAWarn: ⏳ Attestation proof RPC errored, response code: %v, retry count left: %v, retrying in %v", resp.StatusCode, retryCount, waitTime)
 
 		defer resp.Body.Close()
 
