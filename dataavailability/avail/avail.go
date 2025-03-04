@@ -26,6 +26,7 @@ import (
 const (
 	AvailMessageHeaderFlag byte = 0x0a
 	BridgeApiTimeout            = time.Duration(1200)
+	AvailRPCTimeout             = time.Duration(120)
 	BridgeApiWaitInterval       = time.Duration(420)
 	BridgeApiRetryCount         = 10
 	VectorXTimeout              = time.Duration(10000)
@@ -161,7 +162,7 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 	}
 
 	var input BridgeAPIResponse
-	waitTime := BridgeApiWaitInterval * time.Second
+	waitTime := time.Duration(a.timeout) * time.Second
 	retryCount := BridgeApiRetryCount
 	for retryCount > 0 {
 		log.Infof("AvailDAInfo: ℹ️ Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, blockHash, txIndex))
@@ -280,7 +281,7 @@ func (a *AvailBackend) submitData(sequence []byte) (gsrpc_types.Hash, gsrpc_type
 	log.Info("AvailDAInfo: ✅  Tx batch is submitted to Avail", "length", len(sequence), "address", a.keyringPair.Address, "appID", a.appId)
 
 	defer sub.Unsubscribe()
-	timeout := time.After(time.Duration(a.timeout) * time.Second)
+	timeout := time.After(AvailRPCTimeout * time.Second)
 	var finalizedblockHash gsrpc_types.Hash
 
 outer:
@@ -299,7 +300,7 @@ outer:
 				return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("❌ Extrinsic invalid")
 			}
 		case <-timeout:
-			return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⌛️  Timeout of %d seconds reached without getting finalized status for extrinsic", a.timeout)
+			return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⌛️  Timeout of %d seconds reached without getting finalized status for extrinsic", AvailRPCTimeout)
 		}
 	}
 
