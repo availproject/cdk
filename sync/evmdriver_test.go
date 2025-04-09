@@ -25,7 +25,7 @@ func TestSync(t *testing.T) {
 	}
 	rdm := NewReorgDetectorMock(t)
 	pm := NewProcessorMock(t)
-	dm := NewEVMDownloaderMock(t)
+	dm := NewDownloaderMock(t)
 	firstReorgedBlock := make(chan uint64)
 	reorgProcessed := make(chan bool)
 	rdm.On("Subscribe", reorgDetectorID).Return(&reorgdetector.Subscription{
@@ -126,7 +126,7 @@ func TestHandleNewBlock(t *testing.T) {
 	}
 	rdm := NewReorgDetectorMock(t)
 	pm := NewProcessorMock(t)
-	dm := NewEVMDownloaderMock(t)
+	dm := NewDownloaderMock(t)
 	rdm.On("Subscribe", reorgDetectorID).Return(&reorgdetector.Subscription{}, nil)
 	driver, err := NewEVMDriver(rdm, pm, dm, reorgDetectorID, 10, rh)
 	require.NoError(t, err)
@@ -206,7 +206,7 @@ func TestHandleReorg(t *testing.T) {
 	}
 	rdm := NewReorgDetectorMock(t)
 	pm := NewProcessorMock(t)
-	dm := NewEVMDownloaderMock(t)
+	dm := NewDownloaderMock(t)
 	reorgProcessed := make(chan bool)
 	rdm.On("Subscribe", reorgDetectorID).Return(&reorgdetector.Subscription{
 		ReorgProcessed: reorgProcessed,

@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: [ 1.22.x ]
+        go-version: [ 1.23.x ]
         goarch: [ "amd64" ]
         e2e-group:
           - "fork12-pessimistic"
@@ -38,7 +38,7 @@ jobs:
       with:
         repository: 0xPolygon/kurtosis-cdk
         path: kurtosis-cdk
-        ref: v0.2.26
+        ref: v0.2.31
     
     - name: Install Kurtosis CDK tools
       uses: ./kurtosis-cdk/.github/actions/setup-kurtosis-cdk
