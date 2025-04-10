@@ -54,7 +54,7 @@ type AvailBackend struct {
 
 func New(l1RPCURL string, availattestationContractAddress common.Address, config Config) (*AvailBackend, error) {
 
-	log.Infof("AvailDAInfo:ℹ️ AvailDA config: %+v", config)
+	log.Infof("AvailDAInfo:ℹ️ AvailDA config: ws-api-url:%+v, http-api-url: %+v, bridge-api-url: %+v, app-id: %+v, timeout: %+v", config.WsApiUrl, config.HttpApiUrl, config.BridgeApiUrl, config.AppID, config.Timeout)
 	ethClient, err := ethclient.Dial(l1RPCURL)
 	if err != nil {
 		log.Errorf("AvailDAError: ⚠️ error connecting to %s: %+v", l1RPCURL, err)

@@ -23,8 +23,8 @@ github.com/VictoriaMetrics/fastcache v1.12.2/go.mod h1:AmC+Nzz1+3G2eCPapF6UcsnkT
 github.com/allegro/bigcache v1.2.1-0.20190218064605-e24eb225f156/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
 github.com/allegro/bigcache v1.2.1 h1:hg1sY1raCwic3Vnsvje6TT7/pnZba83LeFck5NrFKSc=
 github.com/allegro/bigcache v1.2.1/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v0.0.0-20250227091745-e6188bc41148 h1:ZR5hTSe/oxXvObnaahlMlqquEdHA27IIC0Vyg3cPgVg=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v0.0.0-20250227091745-e6188bc41148/go.mod h1:87xZ+7rikLiOFNVuKJpG5NKsUZt9ren38zOMDtaWELo=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250409122049-39c56791358f h1:jTaS0fmJimDEyVZhzYKHI8o0S0LAsFlmDk7m39gS0zA=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250409122049-39c56791358f/go.mod h1:4ELFsnNB3e52MR+1Z0NqPY9yGGNmk9R+ofFXtAyYpOk=
 github.com/availproject/go-substrate-rpc-client/v4 v4.1.0-avail-2.1.5-rc2 h1:QS4hS9o6GKQMR52VvmwSRWlqNesXHKTiXT5dvtKgu3A=
 github.com/availproject/go-substrate-rpc-client/v4 v4.1.0-avail-2.1.5-rc2/go.mod h1:fept2HOBTquor3ON0CukVm8kckPn6R28V1j/6U+jGOM=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
