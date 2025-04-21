@@ -48,6 +48,7 @@ func TestAvailDASubmitData(t *testing.T) {
 		log.Fatalf("cannot submit data:%+v", err)
 	}
 	log.Info("AvailDAInfo: ✅  Tx batch is got included in Avail chain, ", "address: ", acc.SS58Address(AvailNetworkID), ", appID: ", appId, ", block_number: ", txDetails.BlockNumber, ", block_hash: ", txDetails.BlockHash, ", tx_index: ", txDetails.TxIndex)
+	log.Infof("/eth/proof/%s?index=%d", txDetails.BlockHash.String(), txDetails.TxIndex)
 }
 
 func TestAvailDAGetData(t *testing.T) {
