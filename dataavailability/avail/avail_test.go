@@ -82,6 +82,9 @@ func TestAvailDAGetData(t *testing.T) {
 	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address ", acc.SS58Address(AvailNetworkID))
 	availBackend := AvailBackend{sdk, acc, acc.SS58Address(AvailNetworkID), appId, nil, config.HttpApiUrl, config.BridgeApiUrl, config.Timeout}
 	data, err := availBackend.getData(uint64(blockNumber), uint(leafIndex))
+	if err != nil {
+		log.Fatalf("unable to get data:%+v", err)
+	}
 	log.Info("AvailDAInfo: Data: ", data)
 }
 
