@@ -128,7 +128,7 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 	retryCount := BridgeApiRetryCount
 	for retryCount > 0 {
 		log.Infof("AvailDAInfo: ℹ️ Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
-		resp, err := http.Get(fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
+		resp, err := http.Get(fmt.Sprintf("%s/eth/proof/%s?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
 		if err == nil && resp.StatusCode == 200 {
 			log.Infof("AvailDAInfo: ✅ Attestation proof received")
 			data, err := io.ReadAll(resp.Body)
