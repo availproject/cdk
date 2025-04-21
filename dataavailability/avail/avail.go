@@ -1,7 +1,6 @@
 package avail
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -14,17 +13,16 @@ import (
 	"github.com/0xPolygon/cdk/log"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/vedhavyas/go-subkey"
 
 	"github.com/0xPolygon/cdk/dataavailability/avail/availattestation"
-
-	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
-	"github.com/centrifuge/go-substrate-rpc-client/v4/scale"
-	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
-	gsrpc_types "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	"github.com/availproject/avail-go-sdk/primitives"
+	avail_sdk "github.com/availproject/avail-go-sdk/sdk"
 )
 
 const (
 	AvailMessageHeaderFlag byte = 0x0a
+	AvailNetworkID              = 42
 	BridgeApiTimeout            = time.Duration(1200)
 	AvailRPCTimeout             = time.Duration(120)
 	BridgeApiWaitInterval       = time.Duration(420)
@@ -39,16 +37,13 @@ var (
 )
 
 type AvailBackend struct {
-	api                 *gsrpc.SubstrateAPI
+	sdk                 avail_sdk.SDK
+	acc                 subkey.KeyPair
+	address             string
+	appId               int
 	attestationContract *availattestation.Availattestation
 	httpApi             string
 	bridgeApi           string
-	meta                *gsrpc_types.Metadata
-	appId               int
-	genesisHash         gsrpc_types.Hash
-	rv                  *gsrpc_types.RuntimeVersion
-	keyringPair         signature.KeyringPair
-	key                 gsrpc_types.StorageKey
 	timeout             int
 }
 
@@ -63,20 +58,13 @@ func New(l1RPCURL string, availattestationContractAddress common.Address, config
 
 	log.Infof("AvailDAInfo: 📜 Attestation contract address: %v", availattestationContractAddress)
 	attestationContract, err := availattestation.NewAvailattestation(availattestationContractAddress, ethClient)
-
 	if err != nil {
 		return nil, err
 	}
 
-	api, err := gsrpc.NewSubstrateAPI(config.WsApiUrl)
+	sdk, err := avail_sdk.NewSDK(config.HttpApiUrl)
 	if err != nil {
-		log.Fatalf("AvailDAError: ⚠️ cannot get ws api: %+v", err)
-		return nil, err
-	}
-
-	meta, err := api.RPC.State.GetMetadataLatest()
-	if err != nil {
-		log.Fatalf("AvailDAError: ⚠️ cannot get metadata: %+v", err)
+		log.Errorf("AvailDAError: ⚠️ error connecting to %s: %+v", config.HttpApiUrl, err)
 		return nil, err
 	}
 
@@ -87,43 +75,21 @@ func New(l1RPCURL string, availattestationContractAddress common.Address, config
 		appId = config.AppID
 	}
 
-	genesisHash, err := api.RPC.Chain.GetBlockHash(0)
+	acc, err := avail_sdk.Account.NewKeyPair(config.Seed)
 	if err != nil {
-		log.Fatalf("AvailDAError: ⚠️ cannot get block hash: %+v", err)
-		return nil, err
+		log.Errorf("AvailDAError: ⚠️ unable to generate keypair from given seed")
 	}
 
-	rv, err := api.RPC.State.GetRuntimeVersionLatest()
-	if err != nil {
-		log.Fatalf("AvailDAError: ⚠️ cannot get runtime version: %+v", err)
-		return nil, err
-	}
-
-	keyringPair, err := signature.KeyringPairFromSecret(config.Seed, 42)
-	if err != nil {
-		log.Fatalf("AvailDAError: ⚠️ cannot create keypair: %+v", err)
-		return nil, err
-	}
-
-	key, err := gsrpc_types.CreateStorageKey(meta, "System", "Account", keyringPair.PublicKey)
-	if err != nil {
-		log.Fatalf("AvailDAError: ⚠️ cannot create storage key, %w. %w", err, ErrAvailDAClientInit)
-		return nil, err
-	}
-
-	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address %v", keyringPair.Address)
+	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address %v", acc.SS58Address(AvailNetworkID))
 
 	return &AvailBackend{
+		sdk:                 sdk,
+		acc:                 acc,
+		address:             acc.SS58Address(AvailNetworkID),
+		appId:               appId,
 		attestationContract: attestationContract,
-		api:                 api,
 		httpApi:             config.HttpApiUrl,
 		bridgeApi:           config.BridgeApiUrl,
-		meta:                meta,
-		appId:               appId,
-		genesisHash:         genesisHash,
-		rv:                  rv,
-		keyringPair:         keyringPair,
-		key:                 key,
 		timeout:             config.Timeout,
 	}, nil
 }
@@ -152,28 +118,25 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 
 	log.Infof("AvailDAInfo: ⚡️ Prepared data for Avail: %d bytes", len(sequence))
 
-	blockHash, nonce, err := a.submitData(sequence)
+	txDetails, err := a.submitData(sequence)
 	if err != nil {
 		return nil, fmt.Errorf("cannot submit data:%+v", err)
 	}
-	txIndex, err := getExtrinsicIndex(a.api, blockHash, a.keyringPair.Address, nonce)
-	if err != nil {
-		return nil, fmt.Errorf("cannot get tx index:%+v", err)
-	}
 
-	var input BridgeAPIResponse
+	var input *BridgeAPIResponse
 	waitTime := time.Duration(a.timeout) * time.Second
 	retryCount := BridgeApiRetryCount
 	for retryCount > 0 {
-		log.Infof("AvailDAInfo: ℹ️ Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, blockHash, txIndex))
-		resp, err := http.Get(fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, blockHash, txIndex))
+		log.Infof("AvailDAInfo: ℹ️ Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
+		resp, err := http.Get(fmt.Sprintf("%s/eth/proof/%#x?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
 		if err == nil && resp.StatusCode == 200 {
 			log.Infof("AvailDAInfo: ✅ Attestation proof received")
 			data, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return nil, fmt.Errorf("cannot read body:%v", err)
 			}
-			err = json.Unmarshal(data, &input)
+			input = &BridgeAPIResponse{}
+			err = json.Unmarshal(data, input)
 			if err != nil {
 				return nil, fmt.Errorf("cannot unmarshal data:%v", err)
 			}
@@ -187,6 +150,11 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 		retryCount--
 		time.Sleep(waitTime)
 	}
+
+	if input == nil {
+		return nil, fmt.Errorf("didn't get any proof from bridge api:%+v", err)
+	}
+
 	log.Infof("AvailDAInfo: 🔗 Attestation proof received: %+v", input)
 
 	var dataRootProof [][32]byte
@@ -240,97 +208,53 @@ func (a *AvailBackend) GetSequence(ctx context.Context, batchHashes []common.Has
 	return ret, nil
 }
 
-func (a *AvailBackend) submitData(sequence []byte) (gsrpc_types.Hash, gsrpc_types.UCompact, error) {
-	c, err := gsrpc_types.NewCall(a.meta, "DataAvailability.submit_data", gsrpc_types.NewBytes(sequence))
+func (a *AvailBackend) submitData(sequence []byte) (avail_sdk.TransactionDetails, error) {
+
+	// Transaction will be signed, sent, and watched
+	// If the transaction was dropped or never executed, the system will retry it
+	// for 2 more times using the same nonce and app id.
+	//
+	// Waits for finalization to finalize the transaction.
+	tx := a.sdk.Tx.DataAvailability.SubmitData(sequence)
+	txDetails, err := tx.ExecuteAndWatchFinalization(a.acc, avail_sdk.NewTransactionOptions().WithAppId(uint32(a.appId)))
 	if err != nil {
-		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⚠️ cannot create new call, %w", err)
+		return avail_sdk.TransactionDetails{}, fmt.Errorf("⚠️ extrinsic got rejected from avail chain, %w", err)
 	}
 
-	// Create the extrinsic
-	ext := gsrpc_types.NewExtrinsic(c)
-
-	var accountInfo gsrpc_types.AccountInfo
-	ok, err := a.api.RPC.State.GetStorageLatest(a.key, &accountInfo)
-	if err != nil || !ok {
-		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⚠️ cannot get latest storage, %w", err)
+	// Returns None if there was no way to determine the
+	// success status of a transaction. Otherwise it returns
+	// true or false.
+	status := txDetails.IsSuccessful().UnsafeUnwrap()
+	if status != true {
+		return avail_sdk.TransactionDetails{}, fmt.Errorf("⚠️ extrinsic got failed while execution on avail chain, status: %v", status)
 	}
 
-	o := gsrpc_types.SignatureOptions{
-		BlockHash:          a.genesisHash,
-		Era:                gsrpc_types.ExtrinsicEra{IsMortalEra: false},
-		GenesisHash:        a.genesisHash,
-		Nonce:              gsrpc_types.NewUCompactFromUInt(uint64(accountInfo.Nonce)),
-		SpecVersion:        a.rv.SpecVersion,
-		Tip:                gsrpc_types.NewUCompactFromUInt(0),
-		AppID:              gsrpc_types.NewUCompactFromUInt(uint64(a.appId)), //nolint:gosec
-		TransactionVersion: a.rv.TransactionVersion,
-	}
-
-	// Sign the transaction using Alice's default account
-	err = ext.Sign(a.keyringPair, o)
-	if err != nil {
-		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⚠️ cannot sign, %w", err)
-	}
-
-	// Send the extrinsic
-	sub, err := a.api.RPC.Author.SubmitAndWatchExtrinsic(ext)
-	if err != nil {
-		return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⚠️ cannot submit extrinsic, %w", err)
-	}
-
-	log.Info("AvailDAInfo: ✅  Tx batch is submitted to Avail", "length", len(sequence), "address", a.keyringPair.Address, "appID", a.appId)
-
-	defer sub.Unsubscribe()
-	timeout := time.After(AvailRPCTimeout * time.Second)
-	var finalizedblockHash gsrpc_types.Hash
-
-outer:
-	for {
-		select {
-		case status := <-sub.Chan():
-			if status.IsInBlock {
-				log.Info("AvailDAInfo: 📥  Submit data extrinsic included in block", "blockHash", status.AsInBlock.Hex())
-			} else if status.IsFinalized {
-				finalizedblockHash = status.AsFinalized
-				log.Info("AvailDAInfo: 📥  Submit data extrinsic included in finalized block", "blockHash", finalizedblockHash.Hex())
-				break outer
-			} else if status.IsRetracted {
-				log.Warn("AvailDAWarn: ✂️  AvailDA transaction got retracted from block", "blockHash", status.AsRetracted.Hex())
-			} else if status.IsInvalid {
-				return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("❌ Extrinsic invalid")
-			}
-		case <-timeout:
-			return gsrpc_types.Hash{}, gsrpc_types.UCompact{}, fmt.Errorf("⌛️  Timeout of %d seconds reached without getting finalized status for extrinsic", AvailRPCTimeout)
-		}
-	}
-
-	return finalizedblockHash, o.Nonce, nil
+	log.Info("AvailDAInfo: ✅  Tx batch is got included in Avail chain, ", "address: ", a.address, ", appID: ", a.appId, ", block_number: ", txDetails.BlockNumber, ", block_hash: ", txDetails.BlockHash, ", tx_index: ", txDetails.TxIndex)
+	return txDetails, nil
 }
 
 func (a *AvailBackend) getData(blockNumber uint64, index uint) ([]byte, error) {
-	blockHash, err := a.api.RPC.Chain.GetBlockHash(uint64(blockNumber))
+
+	blockHash, err := a.sdk.Client.BlockHash(uint32(blockNumber))
 	if err != nil {
 		return nil, fmt.Errorf("❎ Cannot get block hash:%w", err)
 	}
 
-	block, err := a.api.RPC.Chain.GetBlock(blockHash)
+	block, err := avail_sdk.NewBlock(a.sdk.Client, blockHash)
 	if err != nil {
 		return nil, fmt.Errorf("❎ Cannot get block:%w", err)
 	}
 
-	var idx uint = 0
-	for _, ext := range block.Block.Extrinsics {
-		if ext.Method.CallIndex.SectionIndex == 29 && ext.Method.CallIndex.MethodIndex == 1 {
-			var availBlob []byte
-			err = scale.NewDecoder(bytes.NewReader(ext.Method.Args)).Decode(&availBlob)
-			if err != nil {
-				return nil, fmt.Errorf("❎ Error while scale decoding blob: %w", err)
-			}
-			if idx == index {
-				return availBlob, nil
-			}
-			idx++
-		}
+	// All Block Blobs
+	blobs := block.DataSubmissions(avail_sdk.Filter{})
+	blob := blobs[index]
+
+	signerAddress, err := primitives.NewAccountIdFromMultiAddress(blob.TxSigner)
+	if err != nil {
+		log.Warn("AvailDAWarn:‼️ unable to extract the signer address for the blob")
 	}
-	return nil, fmt.Errorf("❎ Cannot find data")
+	appId := blob.AppId
+	log.Info("AvailDAInfo: ✅  Tx batch is got retreived from Avail chain, ", "signer: ", signerAddress.ToHuman(), ", appID: ", appId, ", extrinsicHash: ", blob.TxHash)
+
+	return blob.Data, nil
 }
