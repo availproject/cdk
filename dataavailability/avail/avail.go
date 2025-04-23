@@ -2,6 +2,7 @@ package avail
 
 import (
 	"context"
+
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"github.com/0xPolygon/cdk/etherman"
 	"github.com/0xPolygon/cdk/log"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/vedhavyas/go-subkey"
 
@@ -37,19 +39,22 @@ var (
 )
 
 type AvailBackend struct {
-	sdk                 avail_sdk.SDK
-	acc                 subkey.KeyPair
-	address             string
-	appId               int
-	attestationContract *availattestation.Availattestation
-	httpApi             string
+	sdk     avail_sdk.SDK
+	acc     subkey.KeyPair
+	address string
+	appId   int
+
+	httpApi string
+
+	bridgeEnabled       bool
 	bridgeApi           string
-	timeout             int
+	attestationContract *availattestation.Availattestation
+	bridgeTimeout       int
 }
 
 func New(l1RPCURL string, availattestationContractAddress common.Address, config Config) (*AvailBackend, error) {
 
-	log.Infof("AvailDAInfo:ℹ️ AvailDA config: ws-api-url:%+v, http-api-url: %+v, bridge-api-url: %+v, app-id: %+v, timeout: %+v", config.WsApiUrl, config.HttpApiUrl, config.BridgeApiUrl, config.AppID, config.Timeout)
+	log.Infof("AvailDAInfo:ℹ️ AvailDA config: ws-api-url:%+v, http-api-url: %+v, app-id: %+v, bridge-enabled:%+v, bridge-api-url: %+v, bridge-timeout: %+v, ", config.WsApiUrl, config.HttpApiUrl, config.AppID, config.BridgeEnabled, config.BridgeApiUrl, config.BridgeTimeout)
 	ethClient, err := ethclient.Dial(l1RPCURL)
 	if err != nil {
 		log.Errorf("AvailDAError: ⚠️ error connecting to %s: %+v", l1RPCURL, err)
@@ -83,14 +88,16 @@ func New(l1RPCURL string, availattestationContractAddress common.Address, config
 	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address %v", acc.SS58Address(AvailNetworkID))
 
 	return &AvailBackend{
-		sdk:                 sdk,
-		acc:                 acc,
-		address:             acc.SS58Address(AvailNetworkID),
-		appId:               appId,
+		sdk:     sdk,
+		acc:     acc,
+		address: acc.SS58Address(AvailNetworkID),
+		appId:   appId,
+		httpApi: config.HttpApiUrl,
+
+		bridgeEnabled:       config.BridgeEnabled,
 		attestationContract: attestationContract,
-		httpApi:             config.HttpApiUrl,
 		bridgeApi:           config.BridgeApiUrl,
-		timeout:             config.Timeout,
+		bridgeTimeout:       config.BridgeTimeout,
 	}, nil
 }
 
@@ -123,89 +130,119 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 		return nil, fmt.Errorf("cannot submit data:%+v", err)
 	}
 
-	var input *BridgeAPIResponse
-	waitTime := time.Duration(a.timeout) * time.Second
-	retryCount := BridgeApiRetryCount
-	for retryCount > 0 {
-		log.Infof("AvailDAInfo: ℹ️ Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%s?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
-		resp, err := http.Get(fmt.Sprintf("%s/eth/proof/%s?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
-		if err == nil && resp.StatusCode == 200 {
-			log.Infof("AvailDAInfo: ✅ Attestation proof received")
-			data, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return nil, fmt.Errorf("cannot read body:%v", err)
-			}
-			input = &BridgeAPIResponse{}
-			err = json.Unmarshal(data, input)
-			if err != nil {
-				return nil, fmt.Errorf("cannot unmarshal data:%v", err)
-			}
-			break
+	var resp []byte
+	if a.bridgeEnabled {
+		var input *BridgeAPIResponse
+		waitTime := time.Duration(a.bridgeTimeout) * time.Second
+		retryCount := BridgeApiRetryCount
+		for retryCount > 0 {
+			log.Infof("AvailDAInfo: ℹ️ Bridge API URL: %v", fmt.Sprintf("%s/eth/proof/%s?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
+			resp, err := http.Get(fmt.Sprintf("%s/eth/proof/%s?index=%d", a.bridgeApi, txDetails.BlockHash.String(), txDetails.TxIndex))
+			if err == nil && resp.StatusCode == 200 {
+				log.Infof("AvailDAInfo: ✅ Attestation proof received")
+				data, err := io.ReadAll(resp.Body)
+				if err != nil {
+					return nil, fmt.Errorf("cannot read body:%v", err)
+				}
+				input = &BridgeAPIResponse{}
+				err = json.Unmarshal(data, input)
+				if err != nil {
+					return nil, fmt.Errorf("cannot unmarshal data:%v", err)
+				}
+				break
 
+			}
+			log.Infof("AvailDAWarn: ⏳ Attestation proof RPC errored, response code: %v, retry count left: %v, retrying in %v", resp.StatusCode, retryCount, waitTime)
+
+			defer resp.Body.Close()
+
+			retryCount--
+			time.Sleep(waitTime)
 		}
-		log.Infof("AvailDAWarn: ⏳ Attestation proof RPC errored, response code: %v, retry count left: %v, retrying in %v", resp.StatusCode, retryCount, waitTime)
 
-		defer resp.Body.Close()
+		if input == nil {
+			return nil, fmt.Errorf("didn't get any proof from bridge api:%+v", err)
+		}
 
-		retryCount--
-		time.Sleep(waitTime)
-	}
+		log.Infof("AvailDAInfo: 🔗 Attestation proof received: %+v", input)
 
-	if input == nil {
-		return nil, fmt.Errorf("didn't get any proof from bridge api:%+v", err)
+		var dataRootProof [][32]byte
+		for _, hash := range input.DataRootProof {
+			dataRootProof = append(dataRootProof, hash)
+		}
+		var leafProof [][32]byte
+		for _, hash := range input.LeafProof {
+			leafProof = append(leafProof, hash)
+		}
+		merkleProofInput := &MerkleProofInput{
+			DataRootProof: dataRootProof,
+			LeafProof:     leafProof,
+			RangeHash:     input.RangeHash,
+			DataRootIndex: input.DataRootIndex,
+			BlobRoot:      input.BlobRoot,
+			BridgeRoot:    input.BridgeRoot,
+			Leaf:          input.Leaf,
+			LeafIndex:     input.LeafIndex,
+		}
+		log.Infof("AvailDAInfo: 🔗 Merkle proof input: %+v", merkleProofInput)
+		resp, err = merkleProofInput.EnodeToBinary()
+		if err != nil {
+			return nil, fmt.Errorf("cannot encode data:%v", err)
+		}
+	} else {
+		var blobPointer BlobPointer = BlobPointer{BLOBPOINTER_VERSION0, txDetails.BlockNumber, txDetails.TxIndex, crypto.Keccak256Hash(sequence)}
+		resp, err = blobPointer.MarshalToBinary()
+		if err != nil {
+			return nil, fmt.Errorf("cannot encide blobPointer: %v", err)
+		}
 	}
-
-	log.Infof("AvailDAInfo: 🔗 Attestation proof received: %+v", input)
-
-	var dataRootProof [][32]byte
-	for _, hash := range input.DataRootProof {
-		dataRootProof = append(dataRootProof, hash)
-	}
-	var leafProof [][32]byte
-	for _, hash := range input.LeafProof {
-		leafProof = append(leafProof, hash)
-	}
-	merkleProofInput := &MerkleProofInput{
-		DataRootProof: dataRootProof,
-		LeafProof:     leafProof,
-		RangeHash:     input.RangeHash,
-		DataRootIndex: input.DataRootIndex,
-		BlobRoot:      input.BlobRoot,
-		BridgeRoot:    input.BridgeRoot,
-		Leaf:          input.Leaf,
-		LeafIndex:     input.LeafIndex,
-	}
-	log.Infof("AvailDAInfo: 🔗 Merkle proof input: %+v", merkleProofInput)
-	ret, err := merkleProofInput.EnodeToBinary()
-	if err != nil {
-		return nil, fmt.Errorf("cannot encode data:%v", err)
-	}
-	return ret, nil
+	return resp, nil
 }
 
 func (a *AvailBackend) GetSequence(ctx context.Context, batchHashes []common.Hash, dataAvailabilityMessage []byte) ([][]byte, error) {
 
-	var inp *MerkleProofInput
-	inp.DecodeFromBinary(dataAvailabilityMessage)
-	attestationData, err := a.attestationContract.Attestations(nil, inp.Leaf)
-	if err != nil {
-		return nil, fmt.Errorf("cannot get attestation data from contract:%v", err)
-	}
-	blobData, err := a.getData(uint64(attestationData.BlockNumber), uint(attestationData.LeafIndex.Int64()))
-	if err != nil {
-		return nil, fmt.Errorf("cannot get data from block:%v", err)
+	var resp [][]byte
+	if a.bridgeEnabled {
+		var inp *MerkleProofInput
+		inp.DecodeFromBinary(dataAvailabilityMessage)
+		attestationData, err := a.attestationContract.Attestations(nil, inp.Leaf)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get attestation data from contract:%v", err)
+		}
+		blobData, err := a.getData(attestationData.BlockNumber, uint32(attestationData.LeafIndex.Uint64()), LeafIndex)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get data from block:%v", err)
+		}
+
+		unpackedData, err := byteArrayArguments.Unpack(blobData)
+		if err != nil {
+			return nil, fmt.Errorf("cannot decode data:%v", err)
+		}
+		var ok bool
+		resp, ok = unpackedData[0].([][]byte)
+		if !ok {
+			return nil, fmt.Errorf("cannot parse data")
+		}
+	} else {
+		var blobPointer BlobPointer
+		blobPointer.UnmarshalFromBinary(dataAvailabilityMessage)
+		blobData, err := a.getData(blobPointer.BlockHeight, blobPointer.ExtrinsicIndex, TxIndex)
+		if err != nil {
+			return nil, fmt.Errorf("cannot get data from block:%v", err)
+		}
+
+		unpackedData, err := byteArrayArguments.Unpack(blobData)
+		if err != nil {
+			return nil, fmt.Errorf("cannot decode data:%v", err)
+		}
+		var ok bool
+		resp, ok = unpackedData[0].([][]byte)
+		if !ok {
+			return nil, fmt.Errorf("cannot parse data")
+		}
 	}
 
-	unpackedData, err := byteArrayArguments.Unpack(blobData)
-	ret, ok := unpackedData[0].([][]byte)
-	if !ok {
-		return nil, fmt.Errorf("cannot parse data")
-	}
-	if err != nil {
-		return nil, fmt.Errorf("cannot decode data:%v", err)
-	}
-
-	return ret, nil
+	return resp, nil
 }
 
 func (a *AvailBackend) submitData(sequence []byte) (avail_sdk.TransactionDetails, error) {
@@ -233,28 +270,55 @@ func (a *AvailBackend) submitData(sequence []byte) (avail_sdk.TransactionDetails
 	return txDetails, nil
 }
 
-func (a *AvailBackend) getData(blockNumber uint64, index uint) ([]byte, error) {
+type IndexType string
 
-	blockHash, err := a.sdk.Client.BlockHash(uint32(blockNumber))
+const (
+	LeafIndex IndexType = "leaf"
+	TxIndex   IndexType = "tx"
+)
+
+func (a *AvailBackend) getData(blockNumber uint32, index uint32, indexType IndexType) ([]byte, error) {
+	blockHash, err := a.sdk.Client.BlockHash(blockNumber)
 	if err != nil {
-		return nil, fmt.Errorf("❎ Cannot get block hash:%w", err)
+		return nil, fmt.Errorf("❎ Cannot get block hash: %w", err)
 	}
 
 	block, err := avail_sdk.NewBlock(a.sdk.Client, blockHash)
 	if err != nil {
-		return nil, fmt.Errorf("❎ Cannot get block:%w", err)
+		return nil, fmt.Errorf("❎ Cannot get block: %w", err)
 	}
 
-	// All Block Blobs
-	blobs := block.DataSubmissions(avail_sdk.Filter{})
-	blob := blobs[index]
+	var blob avail_sdk.DataSubmission
+
+	switch indexType {
+	case LeafIndex:
+		blobs := block.DataSubmissions(avail_sdk.Filter{})
+		if int(index) >= len(blobs) {
+			return nil, fmt.Errorf("❎ Unable to retrieve blob at index %d from block %d", index, blockNumber)
+		}
+		blob = blobs[index]
+
+	case TxIndex:
+		blobs := block.DataSubmissions(avail_sdk.Filter{}.WTxIndex(index))
+		if len(blobs) == 0 {
+			return nil, fmt.Errorf("❎ No blobs found for transaction index %d in block %d", index, blockNumber)
+		}
+		blob = blobs[0]
+
+	default:
+		return nil, fmt.Errorf("❎ Invalid index type: %v", indexType)
+	}
 
 	signerAddress, err := primitives.NewAccountIdFromMultiAddress(blob.TxSigner)
 	if err != nil {
-		log.Warn("AvailDAWarn:‼️ unable to extract the signer address for the blob")
+		log.Warn("AvailDAWarn:‼️ Unable to extract the signer address for the blob")
 	}
-	appId := blob.AppId
-	log.Info("AvailDAInfo: ✅  Tx batch is got retreived from Avail chain, ", "signer: ", signerAddress.ToHuman(), ", appID: ", appId, ", extrinsicHash: ", blob.TxHash)
+
+	log.Info("AvailDAInfo: ✅ Tx batch retrieved from Avail chain",
+		" signer: ", signerAddress.ToHuman(),
+		", appID: ", blob.AppId,
+		", extrinsicHash: ", blob.TxHash,
+	)
 
 	return blob.Data, nil
 }

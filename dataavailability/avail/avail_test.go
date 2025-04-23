@@ -1,60 +1,17 @@
 package avail
 
 import (
+	"context"
 	"crypto/rand"
 	"math/big"
 	"testing"
 
 	"github.com/0xPolygon/cdk/log"
 	avail_sdk "github.com/availproject/avail-go-sdk/sdk"
+	"github.com/ethereum/go-ethereum/common"
 )
 
-func TestAvailDASubmitData(t *testing.T) {
-	randomBytes, err := GenerateRandomBytes(32) // Change the size as needed
-	if err != nil {
-		log.Fatalf("Error generating random bytes: ", err)
-	}
-
-	var config Config
-	err = config.GetConfig("./avail-config.json")
-	if err != nil {
-		log.Fatalf("cannot get config: %+v", err)
-	}
-
-	log.Info("AvailDAInfo: Config: ", config)
-
-	sdk, err := avail_sdk.NewSDK(config.HttpApiUrl)
-	if err != nil {
-		log.Fatalf("AvailDAError: ⚠️ error connecting to %s: %+v", config.HttpApiUrl, err)
-	}
-
-	appId := 0
-
-	// if app id is greater than 0 then it must be created before submitting data
-	if config.AppID != 0 {
-		appId = config.AppID
-	}
-
-	acc, err := avail_sdk.Account.NewKeyPair(config.Seed)
-	if err != nil {
-		log.Errorf("AvailDAError: ⚠️ unable to generate keypair from given seed")
-	}
-
-	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address ", acc.SS58Address(AvailNetworkID))
-
-	availBackend := AvailBackend{sdk, acc, acc.SS58Address(AvailNetworkID), appId, nil, config.HttpApiUrl, config.BridgeApiUrl, config.Timeout}
-	txDetails, err := availBackend.submitData(randomBytes)
-	if err != nil {
-		log.Fatalf("cannot submit data:%+v", err)
-	}
-	log.Info("AvailDAInfo: ✅  Tx batch is got included in Avail chain, ", "address: ", acc.SS58Address(AvailNetworkID), ", appID: ", appId, ", block_number: ", txDetails.BlockNumber, ", block_hash: ", txDetails.BlockHash, ", tx_index: ", txDetails.TxIndex)
-	log.Infof("/eth/proof/%s?index=%d", txDetails.BlockHash.String(), txDetails.TxIndex)
-}
-
-func TestAvailDAGetData(t *testing.T) {
-	blockNumber := 1315421
-	leafIndex := 3
-
+func createAvailBackend() AvailBackend {
 	var config Config
 	err := config.GetConfig("./avail-config.json")
 	if err != nil {
@@ -69,6 +26,7 @@ func TestAvailDAGetData(t *testing.T) {
 	}
 
 	appId := 0
+
 	// if app id is greater than 0 then it must be created before submitting data
 	if config.AppID != 0 {
 		appId = config.AppID
@@ -80,8 +38,68 @@ func TestAvailDAGetData(t *testing.T) {
 	}
 
 	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address ", acc.SS58Address(AvailNetworkID))
-	availBackend := AvailBackend{sdk, acc, acc.SS58Address(AvailNetworkID), appId, nil, config.HttpApiUrl, config.BridgeApiUrl, config.Timeout}
-	data, err := availBackend.getData(uint64(blockNumber), uint(leafIndex))
+
+	return AvailBackend{sdk, acc, acc.SS58Address(AvailNetworkID), appId, config.HttpApiUrl, false, config.BridgeApiUrl, nil, config.BridgeTimeout}
+
+}
+
+func TestPostAndGetSequence(t *testing.T) {
+	message := "This is the power of Avail Data Availability layer"
+
+	input := [][]byte{
+		[]byte(message),
+	}
+
+	packedData, err := byteArrayArguments.Pack(input)
+	if err != nil {
+		log.Fatalf("Error in packing: %v", err)
+	}
+
+	unpackedData, err := byteArrayArguments.Unpack(packedData)
+	if err != nil {
+		log.Fatalf("Error in encoding the message to byte array, %w", err)
+	}
+
+	data, ok := unpackedData[0].([][]byte)
+	if !ok {
+		log.Fatalf("unable to unpack data")
+	}
+
+	availBackend := createAvailBackend()
+
+	dataAvailabilityMsgbytes, err := availBackend.PostSequence(context.Background(), data)
+	if err != nil {
+		log.Fatalf("Unable to post the msg over avail chain, err: %w", err)
+	}
+
+	msgBytes, err := availBackend.GetSequence(context.Background(), []common.Hash{}, dataAvailabilityMsgbytes)
+	if err != nil {
+		log.Fatalf("Unable to retreive the msg from avail chain, err: %w", err)
+	}
+
+	log.Infof("Message from AvailDA: %v", string(msgBytes[0]))
+}
+
+func TestAvailDASubmitData(t *testing.T) {
+	randomBytes, err := GenerateRandomBytes(32) // Change the size as needed
+	if err != nil {
+		log.Fatalf("Error generating random bytes: %w", err)
+	}
+	availBackend := createAvailBackend()
+	txDetails, err := availBackend.submitData(randomBytes)
+	if err != nil {
+		log.Fatalf("cannot submit data:%+v", err)
+	}
+	log.Info("AvailDAInfo: ✅  Tx batch is got included in Avail chain, ", "address: ", availBackend.address, ", appID: ", availBackend.appId, ", block_number: ", txDetails.BlockNumber, ", block_hash: ", txDetails.BlockHash, ", tx_index: ", txDetails.TxIndex)
+	log.Infof("/eth/proof/%s?index=%d", txDetails.BlockHash.String(), txDetails.TxIndex)
+}
+
+func TestAvailDAGetData(t *testing.T) {
+	blockNumber := 1315421
+	leafIndex := 3
+
+	availBackend := createAvailBackend()
+	data, err := availBackend.getData(uint32(blockNumber), uint32(leafIndex), LeafIndex)
 	if err != nil {
 		log.Fatalf("unable to get data:%+v", err)
 	}
