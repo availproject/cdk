@@ -8,12 +8,14 @@ import (
 )
 
 type Config struct {
-	Seed         string `mapstructure:"seed"`
-	WsApiUrl     string `mapstructure:"ws_api_url"`
-	HttpApiUrl   string `mapstructure:"http_api_url"`
-	BridgeApiUrl string `mapstructure:"bridge_api_url"`
-	AppID        int    `mapstructure:"app_id"`
-	Timeout      int    `mapstructure:"timeout"`
+	Seed       string `mapstructure:"seed"`
+	AppID      int    `mapstructure:"app_id"`
+	WsApiUrl   string `mapstructure:"ws_api_url"`
+	HttpApiUrl string `mapstructure:"http_api_url"`
+
+	BridgeEnabled bool   `mapstructure:"bridge_enabled"`
+	BridgeApiUrl  string `mapstructure:"bridge_api_url"`
+	BridgeTimeout int    `mapstructure:"bridge_timeout"`
 }
 
 func (c *Config) GetConfig(configFileName string) error {
