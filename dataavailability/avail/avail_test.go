@@ -2,20 +2,17 @@ package avail
 
 import (
 	"crypto/rand"
-	"fmt"
 	"math/big"
 	"testing"
 
 	"github.com/0xPolygon/cdk/log"
-	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v4"
-	"github.com/centrifuge/go-substrate-rpc-client/v4/signature"
-	gsrpc_types "github.com/centrifuge/go-substrate-rpc-client/v4/types"
+	avail_sdk "github.com/availproject/avail-go-sdk/sdk"
 )
 
 func TestAvailDASubmitData(t *testing.T) {
 	randomBytes, err := GenerateRandomBytes(32) // Change the size as needed
 	if err != nil {
-		log.Fatalf("Error generating random bytes:", err)
+		log.Fatalf("Error generating random bytes: ", err)
 	}
 
 	var config Config
@@ -26,14 +23,9 @@ func TestAvailDASubmitData(t *testing.T) {
 
 	log.Info("AvailDAInfo: Config: ", config)
 
-	api, err := gsrpc.NewSubstrateAPI(config.WsApiUrl)
+	sdk, err := avail_sdk.NewSDK(config.HttpApiUrl)
 	if err != nil {
-		log.Fatalf("cannot get ws api: %+v", err)
-	}
-
-	meta, err := api.RPC.State.GetMetadataLatest()
-	if err != nil {
-		log.Fatalf("cannot get metadata: %+v", err)
+		log.Fatalf("AvailDAError: ⚠️ error connecting to %s: %+v", config.HttpApiUrl, err)
 	}
 
 	appId := 0
@@ -43,30 +35,57 @@ func TestAvailDASubmitData(t *testing.T) {
 		appId = config.AppID
 	}
 
-	genesisHash, err := api.RPC.Chain.GetBlockHash(0)
+	acc, err := avail_sdk.Account.NewKeyPair(config.Seed)
 	if err != nil {
-		log.Fatalf("cannot get block hash: %+v", err)
+		log.Errorf("AvailDAError: ⚠️ unable to generate keypair from given seed")
 	}
 
-	rv, err := api.RPC.State.GetRuntimeVersionLatest()
+	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address ", acc.SS58Address(AvailNetworkID))
+
+	availBackend := AvailBackend{sdk, acc, acc.SS58Address(AvailNetworkID), appId, nil, config.HttpApiUrl, config.BridgeApiUrl, config.Timeout}
+	txDetails, err := availBackend.submitData(randomBytes)
 	if err != nil {
-		log.Fatalf("cannot get runtime version: %+v", err)
+		log.Fatalf("cannot submit data:%+v", err)
+	}
+	log.Info("AvailDAInfo: ✅  Tx batch is got included in Avail chain, ", "address: ", acc.SS58Address(AvailNetworkID), ", appID: ", appId, ", block_number: ", txDetails.BlockNumber, ", block_hash: ", txDetails.BlockHash, ", tx_index: ", txDetails.TxIndex)
+	log.Infof("/eth/proof/%s?index=%d", txDetails.BlockHash.String(), txDetails.TxIndex)
+}
+
+func TestAvailDAGetData(t *testing.T) {
+	blockNumber := 1315421
+	leafIndex := 3
+
+	var config Config
+	err := config.GetConfig("./avail-config.json")
+	if err != nil {
+		log.Fatalf("cannot get config: %+v", err)
 	}
 
-	keyringPair, err := signature.KeyringPairFromSecret(config.Seed, 42)
-	if err != nil {
-		log.Fatalf("cannot create keypair: %+v", err)
-	}
-	key, err := gsrpc_types.CreateStorageKey(meta, "System", "Account", keyringPair.PublicKey)
-	if err != nil {
-		fmt.Errorf("AvailDAError: ⚠️ cannot create storage key, %w. %w", err, ErrAvailDAClientInit)
-	}
-	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address", keyringPair.Address)
+	log.Info("AvailDAInfo: Config: ", config)
 
-	availBackend := AvailBackend{api, nil, "", "", meta, appId, genesisHash, rv, keyringPair, key, config.Timeout}
-	blockHash, nonce, err := availBackend.submitData(randomBytes)
+	sdk, err := avail_sdk.NewSDK(config.HttpApiUrl)
+	if err != nil {
+		log.Fatalf("AvailDAError: ⚠️ error connecting to %s: %+v", config.HttpApiUrl, err)
+	}
 
-	log.Infof("AvailDA Result: BlockHash %+v, nonce %+v", blockHash, nonce)
+	appId := 0
+	// if app id is greater than 0 then it must be created before submitting data
+	if config.AppID != 0 {
+		appId = config.AppID
+	}
+
+	acc, err := avail_sdk.Account.NewKeyPair(config.Seed)
+	if err != nil {
+		log.Errorf("AvailDAError: ⚠️ unable to generate keypair from given seed")
+	}
+
+	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address ", acc.SS58Address(AvailNetworkID))
+	availBackend := AvailBackend{sdk, acc, acc.SS58Address(AvailNetworkID), appId, nil, config.HttpApiUrl, config.BridgeApiUrl, config.Timeout}
+	data, err := availBackend.getData(uint64(blockNumber), uint(leafIndex))
+	if err != nil {
+		log.Fatalf("unable to get data:%+v", err)
+	}
+	log.Info("AvailDAInfo: Data: ", data)
 }
 
 func TestAvailDAMerkleProofInputEncodeToBinary(t *testing.T) {
