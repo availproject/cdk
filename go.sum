@@ -25,8 +25,8 @@ github.com/allegro/bigcache v1.2.1 h1:hg1sY1raCwic3Vnsvje6TT7/pnZba83LeFck5NrFKS
 github.com/allegro/bigcache v1.2.1/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
 github.com/availproject/avail-go-sdk v0.2.7 h1:BlzrnMW8w2HCr9fYQ5BsqN3Nc5hMolvbQn6WNp4Vhh0=
 github.com/availproject/avail-go-sdk v0.2.7/go.mod h1:zAcOaTWBNNJT0JyTceNHV0W0j5nBRt5PJzGzCJDcEZE=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250418055503-ce2b9e51435a h1:KA9MS7bp+9CLD5mfHgTAgqAAxPqggqXWINbsRUZk+ms=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250418055503-ce2b9e51435a/go.mod h1:QU9myCWZ5CKtISiJfA03PAqLLD38ZsiZpCsrEoCmGes=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250425165330-e9db5667e088 h1:GRQEjVmRFj452xOI8/kTGrPfvJhSO+2J0tsozI4QvIo=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250425165330-e9db5667e088/go.mod h1:/U2cF5BKeP6HIexo/1mYe6QpyU7DlFd6lqFDR/etu0U=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
@@ -471,8 +471,6 @@ github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6Kllzaw
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasttemplate v1.2.2 h1:lxLXG0uE3Qnshl9QyaK6XJxMXlQZELvChBOCmQD0Loo=
 github.com/valyala/fasttemplate v1.2.2/go.mod h1:KHLXt3tVN2HBp8eijSv/kGJopbvo7S+qRAEEKiv+SiQ=
-github.com/vedhavyas/go-subkey v1.0.4 h1:QwjBZx4w7qXC2lmqol2jJfhaNXPI9BsgLZiMiCwqGDU=
-github.com/vedhavyas/go-subkey v1.0.4/go.mod h1:aOIil/KS9hJlnr9ZSQKSoXdu/MbnkCxG4x9IOlLsMtI=
 github.com/vedhavyas/go-subkey/v2 v2.0.0 h1:LemDIsrVtRSOkp0FA8HxP6ynfKjeOj3BY2U9UNfeDMA=
 github.com/vedhavyas/go-subkey/v2 v2.0.0/go.mod h1:95aZ+XDCWAUUynjlmi7BtPExjXgXxByE0WfBwbmIRH4=
 github.com/wk8/go-ordered-map/v2 v2.1.8 h1:5h/BUHu93oj4gIdvHHHGsScSTMijfx5PeYkE/fJgbpc=
