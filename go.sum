@@ -25,8 +25,8 @@ github.com/allegro/bigcache v1.2.1 h1:hg1sY1raCwic3Vnsvje6TT7/pnZba83LeFck5NrFKS
 github.com/allegro/bigcache v1.2.1/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
 github.com/availproject/avail-go-sdk v0.2.7 h1:BlzrnMW8w2HCr9fYQ5BsqN3Nc5hMolvbQn6WNp4Vhh0=
 github.com/availproject/avail-go-sdk v0.2.7/go.mod h1:zAcOaTWBNNJT0JyTceNHV0W0j5nBRt5PJzGzCJDcEZE=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250418055503-ce2b9e51435a h1:KA9MS7bp+9CLD5mfHgTAgqAAxPqggqXWINbsRUZk+ms=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250418055503-ce2b9e51435a/go.mod h1:QU9myCWZ5CKtISiJfA03PAqLLD38ZsiZpCsrEoCmGes=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250425171337-56f503a9390b h1:3BVO5VHOlBDREovl7DRQrca0ysdZsB2NvRX+g7g66Ys=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250425171337-56f503a9390b/go.mod h1:14vjqDWPhRj4ehPrbheS4ZvkErKKhFc2kpMXls+IYRY=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
