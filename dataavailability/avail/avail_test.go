@@ -38,8 +38,8 @@ func createAvailBackend() AvailBackend {
 	}
 
 	log.Infof("AvailDAInfo: 🔑 Using KeyringPair with address ", acc.SS58Address(AvailNetworkID))
-
-	return AvailBackend{sdk, acc, acc.SS58Address(AvailNetworkID), appId, config.HttpApiUrl, false, config.BridgeApiUrl, nil, config.BridgeTimeout}
+	log.Infof("AvailDAInfo:✌️ Avail backend client is created successfully")
+	return AvailBackend{sdk, acc, acc.SS58Address(AvailNetworkID), appId, config.HttpApiUrl, false, config.BridgeApiUrl, nil, config.BridgeTimeout, nil}
 
 }
 
