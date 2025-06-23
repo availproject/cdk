@@ -20,7 +20,7 @@ type Config struct {
 	BridgeTimeout int    `mapstructure:"bridge_timeout"`
 
 	// Fallback
-	FallbackS3ServiceConfig s3_storage_service.S3StorageServiceConfig `koanf:"fallback-s3-service-config"`
+	FallbackS3ServiceConfig s3_storage_service.S3StorageServiceConfig `koanf:"FallbackS3ServiceConfig"`
 }
 
 func (c *Config) GetConfig(configFileName string) error {
