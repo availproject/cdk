@@ -92,7 +92,7 @@ func New(l1RPCURL string, availattestationContractAddress common.Address, config
 
 	var fallbackS3Service *s3_storage_service.S3StorageService
 	if config.FallbackS3ServiceConfig.Enable {
-		log.Infof("AvailDAInfo:ℹ️ Fallback S3 config: S3-bucket: %+v, region: %+v, object-prefix: %+v, secret-key: %+v, access-key: %+v, ", config.FallbackS3ServiceConfig.Bucket, config.FallbackS3ServiceConfig.Region, config.FallbackS3ServiceConfig.ObjectPrefix, config.FallbackS3ServiceConfig.SecretKey, config.FallbackS3ServiceConfig.AccessKey)
+		log.Infof("AvailDAInfo:ℹ️ Fallback S3 config: s3-bucket: %+v, region: %+v, object-prefix: %+v, secret-key: %+v, access-key: %+v, ", config.FallbackS3ServiceConfig.Bucket, config.FallbackS3ServiceConfig.Region, config.FallbackS3ServiceConfig.ObjectPrefix, config.FallbackS3ServiceConfig.SecretKey, config.FallbackS3ServiceConfig.AccessKey)
 		fallbackS3Service, err = s3_storage_service.NewS3StorageService(config.FallbackS3ServiceConfig)
 		if err != nil {
 			return nil, fmt.Errorf("AvailDAError: unable to intialize s3 storage service for fallback, %w. %w", err, ErrAvailDAClientInit)
