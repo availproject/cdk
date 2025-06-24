@@ -29,13 +29,13 @@ type S3Downloader interface {
 }
 
 type S3StorageServiceConfig struct {
-	Enable              bool   `koanf:"enable"`
-	AccessKey           string `koanf:"access-key"`
-	Bucket              string `koanf:"bucket"`
-	ObjectPrefix        string `koanf:"object-prefix"`
-	Region              string `koanf:"region"`
-	SecretKey           string `koanf:"secret-key"`
-	DiscardAfterTimeout bool   `koanf:"discard-after-timeout"`
+	Enable              bool   `mapstructure:"Enable"`
+	AccessKey           string `mapstructure:"AccessKey"`
+	Bucket              string `mapstructure:"Bucket"`
+	ObjectPrefix        string `mapstructure:"ObjectPrefix"`
+	Region              string `mapstructure:"Region"`
+	SecretKey           string `mapstructure:"SecretKey"`
+	DiscardAfterTimeout bool   `mapstructure:"DiscardAfterTimeout"`
 }
 
 var DefaultS3StorageServiceConfig = S3StorageServiceConfig{
@@ -43,13 +43,13 @@ var DefaultS3StorageServiceConfig = S3StorageServiceConfig{
 }
 
 func S3ConfigAddOptions(prefix string, f *flag.FlagSet) {
-	f.Bool(prefix+".enable", DefaultS3StorageServiceConfig.Enable, "enable storage/retrieval of sequencer batch data from an AWS S3 bucket")
-	f.String(prefix+".access-key", DefaultS3StorageServiceConfig.AccessKey, "S3 access key")
-	f.String(prefix+".bucket", DefaultS3StorageServiceConfig.Bucket, "S3 bucket")
-	f.String(prefix+".object-prefix", DefaultS3StorageServiceConfig.ObjectPrefix, "prefix to add to S3 objects")
-	f.String(prefix+".region", DefaultS3StorageServiceConfig.Region, "S3 region")
-	f.String(prefix+".secret-key", DefaultS3StorageServiceConfig.SecretKey, "S3 secret key")
-	f.Bool(prefix+".discard-after-timeout", DefaultS3StorageServiceConfig.DiscardAfterTimeout, "discard data after its expiry timeout")
+	f.Bool(prefix+".Enable", DefaultS3StorageServiceConfig.Enable, "enable storage/retrieval of sequencer batch data from an AWS S3 bucket")
+	f.String(prefix+".AccessKey", DefaultS3StorageServiceConfig.AccessKey, "S3 access key")
+	f.String(prefix+".Bucket", DefaultS3StorageServiceConfig.Bucket, "S3 bucket")
+	f.String(prefix+".ObjectPrefix", DefaultS3StorageServiceConfig.ObjectPrefix, "prefix to add to S3 objects")
+	f.String(prefix+".Region", DefaultS3StorageServiceConfig.Region, "S3 region")
+	f.String(prefix+".SecretKey", DefaultS3StorageServiceConfig.SecretKey, "S3 secret key")
+	f.Bool(prefix+".DiscardAfterTimeout", DefaultS3StorageServiceConfig.DiscardAfterTimeout, "discard data after its expiry timeout")
 }
 
 type S3StorageService struct {

@@ -10,17 +10,16 @@ import (
 )
 
 type Config struct {
-	Seed       string `mapstructure:"seed"`
-	AppID      int    `mapstructure:"app_id"`
-	WsApiUrl   string `mapstructure:"ws_api_url"`
-	HttpApiUrl string `mapstructure:"http_api_url"`
+	Seed       string `mapstructure:"Seed"`
+	AppID      int    `mapstructure:"AppID"`
+	WsApiUrl   string `mapstructure:"WS_API_URL"`
+	HttpApiUrl string `mapstructure:"HTTP_API_URL"`
 
-	BridgeEnabled bool   `mapstructure:"bridge_enabled"`
-	BridgeApiUrl  string `mapstructure:"bridge_api_url"`
-	BridgeTimeout int    `mapstructure:"bridge_timeout"`
-
+	BridgeEnabled bool   `mapstructure:"BridgeEnabled"`
+	BridgeApiUrl  string `mapstructure:"BridgeApiUrl"`
+	BridgeTimeout int    `mapstructure:"BridgeTimeout"`
 	// Fallback
-	FallbackS3ServiceConfig s3_storage_service.S3StorageServiceConfig `koanf:"FallbackS3ServiceConfig"`
+	FallbackS3ServiceConfig s3_storage_service.S3StorageServiceConfig `mapstructure:"FallbackS3ServiceConfig"`
 }
 
 func (c *Config) GetConfig(configFileName string) error {
