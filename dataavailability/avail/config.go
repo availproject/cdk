@@ -12,8 +12,8 @@ import (
 type Config struct {
 	Seed       string `mapstructure:"Seed"`
 	AppID      int    `mapstructure:"AppID"`
-	WsApiUrl   string `mapstructure:"WS_API_URL"`
-	HttpApiUrl string `mapstructure:"HTTP_API_URL"`
+	WsApiUrl   string `mapstructure:"WsApiUrl"`
+	HttpApiUrl string `mapstructure:"HttpApiUrl"`
 
 	BridgeEnabled bool   `mapstructure:"BridgeEnabled"`
 	BridgeApiUrl  string `mapstructure:"BridgeApiUrl"`
