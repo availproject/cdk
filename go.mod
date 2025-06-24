@@ -2,7 +2,7 @@ module github.com/0xPolygon/cdk
 
 go 1.23.7
 
-replace github.com/0xPolygonHermez/zkevm-synchronizer-l1 => github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250623090644-c3907528d8a4
+replace github.com/0xPolygonHermez/zkevm-synchronizer-l1 => github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.7-0.20250624100626-bb3ab2558749
 
 require (
 	github.com/0xPolygon/cdk-contracts-tooling v0.0.2-0.20241225094934-1d381f5703ef
