@@ -223,6 +223,8 @@ func (a *AvailBackend) PostSequence(ctx context.Context, batchesData [][]byte) (
 		err := a.fallbackS3Service.Put(ctx, sequence, 0, dataCommitment)
 		if err != nil {
 			log.Error("AvailDAError: failed to put data on s3 storage service: %w", err)
+		} else {
+			log.Info("AvailInfo: ✅  Succesfully posted data from Avail S3 using fallbackS3Service")
 		}
 	}
 	return resp, nil
@@ -262,13 +264,16 @@ func (a *AvailBackend) GetSequence(ctx context.Context, batchHashes []common.Has
 		blobData, err = a.fallbackS3Service.GetByHash(ctx, dataCommitment)
 		if err != nil {
 			log.Info("AvailInfo: ❌  failed to read data from fallback s3 storage, err: %w", err)
-			return nil, fmt.Errorf("AvailDAError: unable to read data from AvailDA & Fallback s3 storage")
+		} else {
+			log.Info("AvailInfo: ✅  Succesfully fetched data from Avail S3 using fallbackS3Service")
 		}
-		log.Info("AvailInfo: ✅  Succesfully fetched data from Avail S3 using fallbackS3Service")
-	} else {
+	}
+
+	if len(blobData) == 0 || blobData == nil {
 		var err error
 		blobData, err = a.getData(blockNumber, index, indexType)
 		if err != nil {
+			log.Warn("AvailDAError: unable to read data from AvailDA & Fallback s3 storage")
 			return nil, fmt.Errorf("cannot get data from block:%v", err)
 		}
 		log.Infof("AvailDAInfo: ✅ Successfully able to retreive the data from AvailDA")
