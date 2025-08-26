@@ -25,10 +25,10 @@ github.com/allegro/bigcache v1.2.1 h1:hg1sY1raCwic3Vnsvje6TT7/pnZba83LeFck5NrFKS
 github.com/allegro/bigcache v1.2.1/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
 github.com/availproject/avail-go-sdk v0.2.7 h1:BlzrnMW8w2HCr9fYQ5BsqN3Nc5hMolvbQn6WNp4Vhh0=
 github.com/availproject/avail-go-sdk v0.2.7/go.mod h1:zAcOaTWBNNJT0JyTceNHV0W0j5nBRt5PJzGzCJDcEZE=
-github.com/availproject/cdk-avail-da-server v0.0.0-20250825105240-c01023b10f34 h1:sKnLoCqhWUJjz9CLJ81I8W8e+TbQkGG0eoY/pxuEFnE=
-github.com/availproject/cdk-avail-da-server v0.0.0-20250825105240-c01023b10f34/go.mod h1:o7In3D2KsGvH/dO0tRHzMLdqu7yP7sjzayEme3Of/4I=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250826064437-fb47ecb19790 h1:4wJ1Mf4KR66sPkm67J00Gvcal5TzPcbkU09NQJIe/r0=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250826064437-fb47ecb19790/go.mod h1:6ra0SiacMJ/6EGgGSehSUIrmj5fF8UAz0Tt0Su6SpnU=
+github.com/availproject/cdk-avail-da-server v0.0.0-20250826065333-68fa2189f41d h1:X4G6BPGtzg5PvoVfO1Xxq2JTOwkz43Me96zjfLCV03Y=
+github.com/availproject/cdk-avail-da-server v0.0.0-20250826065333-68fa2189f41d/go.mod h1:o7In3D2KsGvH/dO0tRHzMLdqu7yP7sjzayEme3Of/4I=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250826065707-c221f4bdaa9f h1:I4QM7kjqJ1KzfTI/hYHnpkGdLRKpbv4AQ+5qZZeQMUY=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250826065707-c221f4bdaa9f/go.mod h1:IUQ4xit1oX/Poe9pzzLwjtbcMOytlL1JrJWtXH98R3s=
 github.com/aws/aws-sdk-go-v2 v1.38.0 h1:UCRQ5mlqcFk9HJDIqENSLR3wiG1VTWlyUfLDEvY7RxU=
 github.com/aws/aws-sdk-go-v2 v1.38.0/go.mod h1:9Q0OoGQoboYIAJyslFyF1f5K1Ryddop8gqMhWx/n4Wg=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.0 h1:6GMWV6CNpA/6fbFHnoAjrv4+LGfyTqZz2LtCHnspgDg=
