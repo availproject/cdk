@@ -2,9 +2,9 @@ package sequencesender
 
 import (
 	"github.com/0xPolygon/cdk/config/types"
-	"github.com/0xPolygon/cdk/dataavailability/avail"
 	"github.com/0xPolygon/cdk/log"
 	"github.com/0xPolygon/zkevm-ethtx-manager/ethtxmanager"
+	"github.com/availproject/cdk-avail-da-server/lib/avail"
 	"github.com/ethereum/go-ethereum/common"
 )
 
