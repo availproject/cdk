@@ -20,6 +20,7 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/VictoriaMetrics/fastcache v1.12.2 h1:N0y9ASrJ0F6h0QaC3o6uJb3NIZ9VKLjCM7NQbSmF7WI=
 github.com/VictoriaMetrics/fastcache v1.12.2/go.mod h1:AmC+Nzz1+3G2eCPapF6UcsnkThDcMsQicp4xDukwJYI=
+github.com/allegro/bigcache v1.2.1-0.20190218064605-e24eb225f156 h1:eMwmnE/GDgah4HI848JfFxHt+iPb26b4zyfspmqY0/8=
 github.com/allegro/bigcache v1.2.1-0.20190218064605-e24eb225f156/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
 github.com/allegro/bigcache v1.2.1 h1:hg1sY1raCwic3Vnsvje6TT7/pnZba83LeFck5NrFKSc=
 github.com/allegro/bigcache v1.2.1/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
@@ -27,6 +28,8 @@ github.com/availproject/avail-go-sdk v0.2.7 h1:BlzrnMW8w2HCr9fYQ5BsqN3Nc5hMolvbQ
 github.com/availproject/avail-go-sdk v0.2.7/go.mod h1:zAcOaTWBNNJT0JyTceNHV0W0j5nBRt5PJzGzCJDcEZE=
 github.com/availproject/cdk-avail-da-server v0.0.0-20250826065333-68fa2189f41d h1:X4G6BPGtzg5PvoVfO1Xxq2JTOwkz43Me96zjfLCV03Y=
 github.com/availproject/cdk-avail-da-server v0.0.0-20250826065333-68fa2189f41d/go.mod h1:o7In3D2KsGvH/dO0tRHzMLdqu7yP7sjzayEme3Of/4I=
+github.com/availproject/cdk-avail-da-server v0.0.0-20250828042333-957c2c8cd35b h1:ztjIygj4JXDsCmzAq2G6BlKszwbzctwsdwlpG/m2724=
+github.com/availproject/cdk-avail-da-server v0.0.0-20250828042333-957c2c8cd35b/go.mod h1:o7In3D2KsGvH/dO0tRHzMLdqu7yP7sjzayEme3Of/4I=
 github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250826065707-c221f4bdaa9f h1:I4QM7kjqJ1KzfTI/hYHnpkGdLRKpbv4AQ+5qZZeQMUY=
 github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250826065707-c221f4bdaa9f/go.mod h1:IUQ4xit1oX/Poe9pzzLwjtbcMOytlL1JrJWtXH98R3s=
 github.com/aws/aws-sdk-go-v2 v1.38.0 h1:UCRQ5mlqcFk9HJDIqENSLR3wiG1VTWlyUfLDEvY7RxU=
@@ -310,6 +313,8 @@ github.com/jackpal/go-nat-pmp v1.0.2 h1:KzKSgb7qkJvOUTqYl9/Hg/me3pWgBmERKrTGD7Bd
 github.com/jackpal/go-nat-pmp v1.0.2/go.mod h1:QPH045xvCAeXUZOxsnwmrtiCoxIr9eob+4orBN1SBKc=
 github.com/jmoiron/sqlx v1.4.0 h1:1PLqN7S1UYp5t4SrVVnt4nUVNemrDAtxlulVe+Qgm3o=
 github.com/jmoiron/sqlx v1.4.0/go.mod h1:ZrZ7UsYB/weZdl2Bxg6jCRO9c3YHl8r3ahlKmRT4JLY=
+github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
+github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
 github.com/josharian/intern v1.0.0/go.mod h1:5DoeVV0s6jJacbCEi61lwdGj/aVlrQvzHFFd8Hwg//Y=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
