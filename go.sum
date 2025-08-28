@@ -15,8 +15,8 @@ github.com/0xPolygon/cdk-data-availability v0.0.12 h1:nI3TnYpBHg/VhGQ9XGFSe1atWq
 github.com/0xPolygon/cdk-data-availability v0.0.12/go.mod h1:Qmi6eFHVBNp5nlWZHp2tc8ci/3Mb0IGVKA52lADTIz0=
 github.com/0xPolygon/cdk-rpc v0.0.0-20241004114257-6c3cb6eebfb6 h1:FXL/rcO7/GtZ3kRFw+C7J6vmGnl8gcazg+Gh/NVmnas=
 github.com/0xPolygon/cdk-rpc v0.0.0-20241004114257-6c3cb6eebfb6/go.mod h1:2scWqMMufrQXu7TikDgQ3BsyaKoX8qP26D6E262vSOg=
-github.com/0xPolygon/zkevm-ethtx-manager v0.2.16 h1:7eJMtsYlJXQwUdDmMIiwSSZ0bMnBie73oIKmuj9A4qI=
-github.com/0xPolygon/zkevm-ethtx-manager v0.2.16/go.mod h1:AmLGLIk9qrf1EGqZrgjBc3YGn+0Dc7Ee2KVLuiTBY7g=
+github.com/0xPolygon/zkevm-ethtx-manager v0.2.15 h1:v9BhQkXWvg1jM3SeDRJzjwUQo0YOWFUSEtkFRfGW+dw=
+github.com/0xPolygon/zkevm-ethtx-manager v0.2.15/go.mod h1:AmLGLIk9qrf1EGqZrgjBc3YGn+0Dc7Ee2KVLuiTBY7g=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.4.0 h1:kuoIxZQy2WRRk1pttg9asf+WVv6tWQuBNVmK8+nqPr0=
 github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
