@@ -2,7 +2,7 @@ module github.com/0xPolygon/cdk
 
 go 1.23.7
 
-replace github.com/0xPolygonHermez/zkevm-synchronizer-l1 => github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250831052759-471595d6de39
+replace github.com/0xPolygonHermez/zkevm-synchronizer-l1 => github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250831100003-ae6afc74bdda
 
 require (
 	github.com/0xPolygon/cdk-contracts-tooling v0.0.2-0.20241225094934-1d381f5703ef
@@ -10,7 +10,7 @@ require (
 	github.com/0xPolygon/cdk-rpc v0.0.0-20241004114257-6c3cb6eebfb6
 	github.com/0xPolygon/zkevm-ethtx-manager v0.2.15
 	github.com/0xPolygonHermez/zkevm-synchronizer-l1 v1.0.7
-	github.com/availproject/cdk-avail-da-server v0.0.0-20250831052534-ccdc9d80de5d
+	github.com/availproject/cdk-avail-da-server v0.0.0-20250831095542-a14f4428bdcf
 	github.com/ethereum/go-ethereum v1.16.2
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/hermeznetwork/tracerr v0.3.2
@@ -27,7 +27,7 @@ require (
 	github.com/rubenv/sql-migrate v1.7.1
 	github.com/russross/meddler v1.0.1
 	github.com/spf13/viper v1.19.0
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	github.com/urfave/cli/v2 v2.27.5
 	github.com/valyala/fasttemplate v1.2.2
 	go.opentelemetry.io/otel v1.24.0

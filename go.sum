@@ -38,10 +38,10 @@ github.com/allegro/bigcache v1.2.1 h1:hg1sY1raCwic3Vnsvje6TT7/pnZba83LeFck5NrFKS
 github.com/allegro/bigcache v1.2.1/go.mod h1:Cb/ax3seSYIx7SuZdm2G2xzfwmv3TPSk2ucNfQESPXM=
 github.com/availproject/avail-go-sdk v0.2.7 h1:BlzrnMW8w2HCr9fYQ5BsqN3Nc5hMolvbQn6WNp4Vhh0=
 github.com/availproject/avail-go-sdk v0.2.7/go.mod h1:zAcOaTWBNNJT0JyTceNHV0W0j5nBRt5PJzGzCJDcEZE=
-github.com/availproject/cdk-avail-da-server v0.0.0-20250831052534-ccdc9d80de5d h1:AMGMPc3oWF2XAZW00PcrOidjsSEpJdrGaPaWf44pSxY=
-github.com/availproject/cdk-avail-da-server v0.0.0-20250831052534-ccdc9d80de5d/go.mod h1:B2bDib30Mhd9J6RB822UjJPfKl0WL8tbzLubCpEgYo4=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250831052759-471595d6de39 h1:R179IqTVVeeIIdpsliEyUv+y6xd/g0hWyw4dbnYZjF4=
-github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250831052759-471595d6de39/go.mod h1:q51sLOWKmhp7Zw8NCQaVGZvFHHQWu2gHijcp7fU0zSs=
+github.com/availproject/cdk-avail-da-server v0.0.0-20250831095542-a14f4428bdcf h1:VoO1wypa/JR3mI8P4ruh6yjDAEhBKEmg7V2RnPxXP1o=
+github.com/availproject/cdk-avail-da-server v0.0.0-20250831095542-a14f4428bdcf/go.mod h1:tomULv67og7bMkn3PlLoAMZBcAqerrBmQU96DXrlmho=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250831100003-ae6afc74bdda h1:WWUMvIG8Q5vLa1esTvQMZa0sECHjAUFyWR7ozldI1ik=
+github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250831100003-ae6afc74bdda/go.mod h1:RCR3WuEv3QzE+FkHBwYmP6ruPsJMsBxoeEIrgSCqBts=
 github.com/aws/aws-sdk-go-v2 v1.38.0 h1:UCRQ5mlqcFk9HJDIqENSLR3wiG1VTWlyUfLDEvY7RxU=
 github.com/aws/aws-sdk-go-v2 v1.38.0/go.mod h1:9Q0OoGQoboYIAJyslFyF1f5K1Ryddop8gqMhWx/n4Wg=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.0 h1:6GMWV6CNpA/6fbFHnoAjrv4+LGfyTqZz2LtCHnspgDg=
@@ -573,8 +573,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.8.3/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
-github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
-github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
+github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
+github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8=
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 github.com/supranational/blst v0.3.14 h1:xNMoHRJOTwMn63ip6qoWJ2Ymgvj7E2b9jY2FAwY+qRo=
