@@ -2,7 +2,7 @@ module github.com/0xPolygon/cdk
 
 go 1.23.7
 
-replace github.com/0xPolygonHermez/zkevm-synchronizer-l1 => github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250828042623-3e1741561eba
+replace github.com/0xPolygonHermez/zkevm-synchronizer-l1 => github.com/availproject/cdk-zkevm-synchronizer-l1 v1.0.8-0.20250831052759-471595d6de39
 
 require (
 	github.com/0xPolygon/cdk-contracts-tooling v0.0.2-0.20241225094934-1d381f5703ef
@@ -10,7 +10,7 @@ require (
 	github.com/0xPolygon/cdk-rpc v0.0.0-20241004114257-6c3cb6eebfb6
 	github.com/0xPolygon/zkevm-ethtx-manager v0.2.15
 	github.com/0xPolygonHermez/zkevm-synchronizer-l1 v1.0.7
-	github.com/availproject/cdk-avail-da-server v0.0.0-20250828042333-957c2c8cd35b
+	github.com/availproject/cdk-avail-da-server v0.0.0-20250831052534-ccdc9d80de5d
 	github.com/ethereum/go-ethereum v1.16.2
 	github.com/golang-collections/collections v0.0.0-20130729185459-604e922904d3
 	github.com/hermeznetwork/tracerr v0.3.2
