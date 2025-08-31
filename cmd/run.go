@@ -429,6 +429,7 @@ func newDataAvailability(c config.Config, etherman *etherman.Client) (*dataavail
 			c.SequenceSender.EthTxManager.Etherman.URL,
 			dacAddr,
 			c.SequenceSender.AvailDAConfig,
+			logger,
 		)
 		if err != nil {
 			return nil, err
